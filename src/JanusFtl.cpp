@@ -413,7 +413,6 @@ void JanusFtl::ftlServerRtpPacket(ftl_channel_id_t channelId, ftl_stream_id_t st
 {
     std::shared_ptr<JanusFtl::ActiveStream> stream;
     {
-        // HACK we don't need this lock if refactored to use the shared_ptr
         std::shared_lock lock(streamDataMutex);
         if (streams.count(channelId) <= 0)
         {
