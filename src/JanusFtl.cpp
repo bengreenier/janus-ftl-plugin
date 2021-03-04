@@ -1004,8 +1004,10 @@ ConnectionResult JanusFtl::onOrchestratorStreamRelay(ConnectionRelayPayload payl
                 };
         }
 
-        activeStream.RelayClients.emplace_back(payload.ChannelId, payload.TargetHostname,
-            std::move(relayClient));
+        {
+            std::unique_lock streamLock(activeStream.Mutex);
+            activeStream.RelayClients.emplace_back(payload.ChannelId, payload.TargetHostname, std::move(relayClient));
+        }
         
         return ConnectionResult
         {
