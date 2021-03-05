@@ -48,6 +48,7 @@ sources = files([
     'src/FtlStream.cpp',
     'src/JanusSession.cpp',
     'src/JanusFtl.cpp',
+    'src/Watchdog.cpp',
     # Library entrypoint
     'src/entrypoint.cpp',
 ])
@@ -56,6 +57,14 @@ sources = files([
 fmt_wrap = subproject('fmt', default_options: 'default_library=static')
 meson.override_dependency('fmt', fmt_wrap.get_variable('fmt_dep')) # Use our copy of fmt for spdlog
 spdlog_wrap = subproject('spdlog', default_options: ['default_library=static', 'compile_library=true', 'external_fmt=true'] )
+
+# Optional libsystemd dep for watchdog monitoring support
+systemd_dep = dependency('libsystemd', required : get_option('systemd_watchdog_support'))
+if systemd_dep.found()
+  add_project_arguments('-DSYSTEMD_WATCHDOG_SUPPORT', language: 'cpp') 
+else
+  systemd_dep = disabler()
+endif
 
 deps = [
     dependency('glib-2.0'),
@@ -68,6 +77,7 @@ deps = [
     # Meson wrapped dependencies
     fmt_wrap.get_variable('fmt_dep'),
     spdlog_wrap.get_variable('spdlog_dep'),
+    systemd_dep,
 ]
 
 incdir = include_directories(

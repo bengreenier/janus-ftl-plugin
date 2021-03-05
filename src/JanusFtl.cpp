@@ -20,6 +20,7 @@
 #include "ServiceConnections/GlimeshServiceConnection.h"
 #include "ServiceConnections/RestServiceConnection.h"
 #include "Utilities/JanssonPtr.h"
+#include "Watchdog.h"
 
 #include <stdexcept>
 
@@ -546,10 +547,16 @@ void JanusFtl::serviceReportThreadBody(std::promise<void>&& threadEndedPromise)
 {
     threadEndedPromise.set_value_at_thread_exit();
     std::unique_lock lock(threadShutdownMutex);
+
+    Watchdog watchdog;
+
     while (true)
     {
+        watchdog.KeepAlive();
+
         threadShutdownConditionVariable.wait_for(lock,
             std::chrono::milliseconds(metadataReportIntervalMs));
+
         if (isStopping)
         {
             break;
