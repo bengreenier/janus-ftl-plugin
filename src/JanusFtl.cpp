@@ -21,6 +21,8 @@
 #include "ServiceConnections/RestServiceConnection.h"
 #include "Utilities/JanssonPtr.h"
 
+#include <spdlog/cfg/env.h>
+
 #include <stdexcept>
 
 extern "C"
@@ -46,6 +48,8 @@ JanusFtl::JanusFtl(
 #else
     spdlog::set_level(spdlog::level::info);
 #endif
+
+    spdlog::cfg::load_env_levels();
 
     configuration = std::make_unique<Configuration>();
     configuration->Load();
